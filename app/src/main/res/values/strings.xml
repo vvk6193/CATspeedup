@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">CAT speed up</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_addition_table">AdditionTableActivity</string>
+    <string name="title_activity_addition_table_activity2">AdditionTableActivity2</string>
+    <string name="title_activity_graph">GraphActivity</string>
+</resources>

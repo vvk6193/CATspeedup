@@ -1,0 +1,52 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#ffffff"
+    tools:context="com.cat.vvk.catspeedup.AdditionTableActivity2">
+
+    <include
+        android:id="@+id/toolbar"
+        layout="@layout/toolbar" />
+    <View
+        android:id="@+id/focus_thief"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:focusable="true"
+        android:focusableInTouchMode="true" />
+    <com.cat.vvk.catspeedup.TimerTextView
+        android:id="@+id/chron"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/toolbar"
+        android:layout_marginLeft="50dp"
+        android:layout_marginTop="50dp"
+        android:textSize="20sp"
+         />
+
+    <Button
+        android:id="@+id/btnStart"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="32dp"
+        android:layout_below="@id/chron"
+        android:text="Next" />
+
+    <Button
+        android:id="@+id/btnStop"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/btnStart"
+        android:visibility="invisible"
+        android:layout_alignParentLeft="true"
+        android:text="Stop" />
+    <TableLayout
+        android:id="@+id/main_table"
+        android:background="#000000"
+        android:layout_below="@id/toolbar"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_centerHorizontal="true">
+    </TableLayout>
+
+</RelativeLayout>

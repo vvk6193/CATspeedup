@@ -1,0 +1,85 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <LinearLayout
+        android:id="@+id/tbar"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:orientation="vertical">
+
+        <include
+            android:id="@+id/toolbar"
+            layout="@layout/toolbar" />
+    </LinearLayout>
+
+    <android.support.v7.widget.CardView
+        xmlns:card_view="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/card_view"
+        android:layout_gravity="center"
+        android:layout_width="350dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tbar"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        >
+
+        <TextView
+            android:id="@+id/info_text"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text = "@string/hello_world"/>
+    </android.support.v7.widget.CardView>
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/card_view"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true">
+
+        <Button
+            android:id="@+id/add"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:text="ADD"
+            android:layout_margin="5dp"
+            android:layout_alignParentLeft="true"
+            android:background="#00eeff"
+            />
+        <Button
+            android:id="@+id/sub"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:text="Subtract"
+            android:layout_toRightOf="@id/add"
+            android:layout_margin="5dp"
+            android:background="#ffee00"
+            />
+        <Button
+            android:id="@+id/add_table"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:text="ADD TABLE"
+            android:layout_alignParentLeft="true"
+            android:layout_below="@id/add"
+            android:layout_margin="5dp"
+            android:background="#996600"
+            />
+        <Button
+            android:id="@+id/sub_table"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:text="SUB TABLE"
+            android:layout_below="@id/sub"
+            android:layout_margin="5dp"
+            android:layout_toRightOf="@id/add_table"
+            android:background="#00ee00"
+            />
+
+    </RelativeLayout>
+
+
+</RelativeLayout>
