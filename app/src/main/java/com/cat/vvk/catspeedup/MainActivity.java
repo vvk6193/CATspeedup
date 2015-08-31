@@ -12,11 +12,13 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.cat.vvk.catspeedup.modal.Constant;
+
 
 public class MainActivity extends ActionBarActivity implements View.OnClickListener{
 
     private Toolbar mToolbar;
-    private Button addTable,add,sub,subTable;
+    private Button mul,add,sub, div;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,12 +29,14 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
         setSupportActionBar(mToolbar);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         TextView info_text = (TextView)findViewById(R.id.info_text);
-        addTable = (Button)findViewById(R.id.add_table);
+        mul = (Button)findViewById(R.id.mul);
         add = (Button)findViewById(R.id.add);
         sub = (Button)findViewById(R.id.sub);
-        subTable = (Button)findViewById(R.id.sub_table);
-        addTable.setOnClickListener(this);
-        subTable.setOnClickListener(this);
+        div = (Button)findViewById(R.id.div);
+        add.setOnClickListener(this);
+        sub.setOnClickListener(this);
+        mul.setOnClickListener(this);
+        div.setOnClickListener(this);
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
         String num = sp.getString("number_of_digit_addition","2");
         num += sp.getString("example_text","2");
@@ -69,26 +73,27 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 
         Intent i;
         switch(v.getId()) {
-            case R.id.add_table:
-                 i = new Intent(MainActivity.this,AdditionTableActivity.class);
-                startActivity(i);
-                break;
-
-            case R.id.sub_table:
-                 i = new Intent(MainActivity.this,AdditionTableActivity2.class);
-                startActivity(i);
-                break;
-            case R.id.sub:
-                 i = new Intent(MainActivity.this,AdditionTableActivity.class);
-                startActivity(i);
-                break;
             case R.id.add:
-                 i = new Intent(MainActivity.this,AdditionTableActivity.class);
+                 i = new Intent(MainActivity.this,AdditionTableActivity2.class);
+                i.putExtra("operation_type", Constant.ADDITION);
                 startActivity(i);
                 break;
 
-
+            case R.id.sub:
+                 i = new Intent(MainActivity.this,AdditionTableActivity2.class);
+                i.putExtra("operation_type", Constant.SUBTRACTION);
+                startActivity(i);
+                break;
+            case R.id.mul:
+                 i = new Intent(MainActivity.this,AdditionTableActivity2.class);
+                i.putExtra("operation_type", Constant.MULTIPLICATION);
+                startActivity(i);
+                break;
+            case R.id.div:
+                 i = new Intent(MainActivity.this,AdditionTableActivity2.class);
+                i.putExtra("operation_type", Constant.DIVISION);
+                startActivity(i);
+                break;
         }
-
     }
 }

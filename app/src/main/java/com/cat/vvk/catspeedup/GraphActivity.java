@@ -16,6 +16,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.cat.vvk.catspeedup.db.DatabaseHelper;
+import com.cat.vvk.catspeedup.modal.Constant;
 import com.cat.vvk.catspeedup.modal.Record;
 import com.jjoe64.graphview.DefaultLabelFormatter;
 import com.jjoe64.graphview.GraphView;
@@ -43,7 +44,9 @@ public class GraphActivity extends AppCompatActivity implements AdapterView.OnIt
     RadioGroup radioDurationType;
     ArrayAdapter<Integer> adapterDurationValueDay;
     Toolbar mToolbar;
-    TextView tvEfficiency;
+    TextView tvEfficiency,tvAvg,numBreakdown;
+    String operationType = "";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +55,7 @@ public class GraphActivity extends AppCompatActivity implements AdapterView.OnIt
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
+        operationType = getIntent().getExtras().getString("operationType", Constant.ADDITION);
         dh = DatabaseHelper.getInstance(getApplicationContext());
         graph = (GraphView) findViewById(R.id.graph);
 
@@ -60,6 +64,8 @@ public class GraphActivity extends AppCompatActivity implements AdapterView.OnIt
         spinnerDateValue = (Spinner) findViewById(R.id.select_date_value);
         spinnerCalculationType = (Spinner) findViewById(R.id.select_calculation_type);
         tvEfficiency = (TextView) findViewById(R.id.tvEfficiency);
+        tvAvg = (TextView) findViewById(R.id.avgTime);
+        numBreakdown = (TextView) findViewById(R.id.numBreakdown);
 
         radioDurationType = (RadioGroup) findViewById(R.id.radioDurationType);
 
@@ -79,16 +85,23 @@ public class GraphActivity extends AppCompatActivity implements AdapterView.OnIt
         adapterDurationValueMonth.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
         ArrayAdapter<CharSequence> adapterCalculationType = ArrayAdapter.createFromResource(this,
-                R.array.calculation_types_titles, android.R.layout.simple_spinner_item);
-        adapterDigit.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                R.array.calculation_types_titles, android.R.layout.simple_spinner_dropdown_item);
+//        adapterDigit.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
 
         setupDateSpinner();
         spinnerDigit.setAdapter(adapterDigit);
         spinnerMonthValue.setAdapter(adapterDurationValueMonth);
+        Calendar calendar = GregorianCalendar.getInstance(); // creates a new calendar instance
+        calendar.setTime(new Date(System.currentTimeMillis()));
+        int day = calendar.get(Calendar.DATE);
+        int month = calendar.get(Calendar.MONTH);
+        spinnerMonthValue.setSelection(month);
+        spinnerDateValue.setSelection(day-1);
         spinnerCalculationType.setAdapter(adapterCalculationType);
-//        spinnerDateValue.setAdapter(adapterDurationValueDay);
-
+        int position = adapterCalculationType.getPosition(operationType);
+        Log.d("vvkd","" + position + " type " + operationType);
+        spinnerCalculationType.setSelection(position);
 
         spinnerDigit.setOnItemSelectedListener(this);
         spinnerMonthValue.setOnItemSelectedListener(this);
@@ -102,28 +115,13 @@ public class GraphActivity extends AppCompatActivity implements AdapterView.OnIt
             case R.id.radioDay:
                 if (checked) {
                     setupDateSpinner();
-//                    int month = spinnerMonthValue.getSelectedItemPosition();
-//                    List<Integer> days = new ArrayList<Integer>();
-//                    Calendar calendar = GregorianCalendar.getInstance(); // creates a new calendar instance
-//                    calendar.setTime(new Date(System.currentTimeMillis()));
-//                    calendar.set(Calendar.MONTH, month);
-//                    int numDays = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
-//                    for (int i = 1; i <= numDays; i++) {
-//                        days.add(i);
-//                    }
-//                    adapterDurationValueDay.clear();
-//                    adapterDurationValueDay.addAll(days);
-//                    spinnerDateValue.setAdapter(adapterDurationValueDay);
-//                    spinnerDateValue.setVisibility(View.VISIBLE);
-//                    getRecordList();
                     setupGraph(getRecordList());
                 }
                 break;
             case R.id.radioMonth:
                 if (checked) {
-                    spinnerDateValue.setVisibility(View.INVISIBLE);// Ninjas rule
+                    spinnerDateValue.setVisibility(View.INVISIBLE);
                     setupGraph(getRecordList());
-//                    getRecordList();
                 }
                 break;
         }
@@ -171,24 +169,11 @@ public class GraphActivity extends AppCompatActivity implements AdapterView.OnIt
     }
 
     void setupGraph(List<Record> recordList) {
+        float avgtime = 0;
         displayEfficiency();
         int digit = Integer.parseInt(spinnerDigit.getSelectedItem().toString());
         List<Record> list = recordList;
-
-//        public setDates(int year, int month, TimeZone zone) {
-//            Calendar calendar = Calendar.getInstance(zone);
-//
-//            // Do you really want 0-based months, like Java has? Consider month - 1.
-//            calendar.set(year, month, 1, 0, 0, 0);
-//            calendar.clear(Calendar.MILLISECOND);
-//            startDate = calendar.getTime();
-//
-//            // Get to the last millisecond in the month
-//            calendar.add(Calendar.MONTH, 1);
-//            calendar.add(Calendar.MILLISECOND, -1);
-//            endDate = calendar.getTime();
-//        }
-
+        int id = radioDurationType.getCheckedRadioButtonId();
 
         Log.d("vvk", "digit is " + digit + " size is " + list.size());
         if (list.size() > 0) {
@@ -225,20 +210,29 @@ public class GraphActivity extends AppCompatActivity implements AdapterView.OnIt
 
             }
             Log.d("vvk", "count " + correctCount + " " + inCorrectCount);
-            if (correctCount > 0)
+            if (correctCount > 0) {
                 dataCorrect = new DataPoint[correctCount];
-            if (inCorrectCount > 0)
+            }
+            if (inCorrectCount > 0) {
                 dataInCorrect = new DataPoint[inCorrectCount];
+            }
             correctCount = 0;
             inCorrectCount = 0;
             ite = list.iterator();
             while (ite.hasNext()) {
                 Record rec = ite.next();
+                avgtime += rec.getTimeTaken();
                 if (rec.getIsCorrect() == 1) {
                     dataCorrect[correctCount++] = new DataPoint(rec.getCreatedDate(), rec.getTimeTaken());
                 } else {
                     dataInCorrect[inCorrectCount++] = new DataPoint(rec.getCreatedDate(), rec.getTimeTaken());
                 }
+            }
+            if(id == R.id.radioDay) {
+                numBreakdown.setText("Number of correct answers is " + correctCount + " and number of in-correct answers is " + inCorrectCount);
+                avgtime = avgtime / list.size();
+                Log.d("vvkd",""+avgtime + " " + list.size());
+                tvAvg.setText("average time taken during this period is " + avgtime);
             }
             if (dataCorrect != null && dataCorrect.length > 0) {
                 Log.d("vvk","positive point series added");
@@ -261,7 +255,6 @@ public class GraphActivity extends AppCompatActivity implements AdapterView.OnIt
             LineGraphSeries<DataPoint> series2 = new LineGraphSeries<DataPoint>(data);
             graph.addSeries(series2);
             Log.d("vvk", "line series added");
-            int id = radioDurationType.getCheckedRadioButtonId();
             graph.getGridLabelRenderer().setNumHorizontalLabels(5); // only 4 because of the space
             if( id == R.id.radioDay) {
                 graph.getGridLabelRenderer().setLabelFormatter(new DefaultLabelFormatter() {
@@ -291,6 +284,7 @@ public class GraphActivity extends AppCompatActivity implements AdapterView.OnIt
                 graph.getViewport().setMinX(list.get(0).getCreatedDate() - 3600 * 1000 * 5);
                 graph.getViewport().setMaxX(list.get(0).getCreatedDate() + 3600 * 1000 * 67 );
                 graph.getGridLabelRenderer().setNumHorizontalLabels(3);
+                graph.getViewport().setScalable(false);
             }
 
             // set manual Y bounds   (list.get(list.size()-1).getCreatedDate() - list.get(0).getCreatedDate())/5
@@ -338,6 +332,8 @@ public class GraphActivity extends AppCompatActivity implements AdapterView.OnIt
         int monthPosition = spinnerMonthValue.getSelectedItemPosition();
         int durationTypeId = radioDurationType.getCheckedRadioButtonId();
         int datePosition = spinnerDateValue.getSelectedItemPosition() + 1;
+        float avgTime = 0;
+        int correctCount = 0, inCorrectCount = 0;
         List<Date> selectedDates = getStartDate();
         Date t1 = new Date();
         Date t2 = new Date();
@@ -380,11 +376,16 @@ public class GraphActivity extends AppCompatActivity implements AdapterView.OnIt
                 Record rec = ite.next();
                 Date d = new Date(rec.getCreatedDate());
                 String recDate = sdf.format(d);
+                avgTime += rec.getTimeTaken();
                 if(recDate.equalsIgnoreCase(date)) {
                     count ++;
                     avgTimeTaken += rec.getTimeTaken();
-                    if(rec.getIsCorrect() == 1)
-                    cPositive++;
+                    if(rec.getIsCorrect() == 1) {
+                        cPositive++;
+                        correctCount++;
+                    } else {
+                        inCorrectCount++;
+                    }
                 } else {
                     if(date.length() > 0) {
                         Record r = new Record();
@@ -414,6 +415,10 @@ public class GraphActivity extends AppCompatActivity implements AdapterView.OnIt
                     curTime = rec.getCreatedDate();
                 }
             }
+            numBreakdown.setText("Number of correct answers is " + correctCount + " and number of in-correct answers is " + inCorrectCount);
+            Log.d("vvkd",""+avgTime + " " + list.size());
+            avgTime = avgTime / list.size();
+            tvAvg.setText("average time taken during this period is " + avgTime);
             if(date.length() > 0) {
                 Record r = new Record();
                 calendar.setTime(new Date(curTime));
@@ -429,6 +434,7 @@ public class GraphActivity extends AppCompatActivity implements AdapterView.OnIt
                     r.setIsCorrect(0);
                 }
                 list2.add(r);
+
                 return list2;
             }
         }

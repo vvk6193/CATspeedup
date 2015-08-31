@@ -12,6 +12,8 @@ import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.RingtonePreference;
 
+import com.cat.vvk.catspeedup.modal.Constant;
+
 /**
  * A {@link PreferenceActivity} that presents a set of application settings. On
  * handset devices, settings are presented as a single list. On tablets,
@@ -57,10 +59,30 @@ public class SettingsActivity extends PreferenceActivity {
         addPreferencesFromResource(R.xml.pref_general);
 
         // Add 'notifications' preferences, and a corresponding header.
-        PreferenceCategory fakeHeader = new PreferenceCategory(this);
-        fakeHeader.setTitle(R.string.pref_header_notifications);
-        getPreferenceScreen().addPreference(fakeHeader);
-        addPreferencesFromResource(R.xml.pref_notification);
+        PreferenceCategory fakeHeaderAdd = new PreferenceCategory(this);
+        fakeHeaderAdd.setTitle(Constant.ADDITION);
+        getPreferenceScreen().addPreference(fakeHeaderAdd);
+        addPreferencesFromResource(R.xml.pref_addition);
+
+        PreferenceCategory fakeHeaderSub = new PreferenceCategory(this);
+        fakeHeaderSub.setTitle(Constant.SUBTRACTION);
+        getPreferenceScreen().addPreference(fakeHeaderSub);
+        addPreferencesFromResource(R.xml.pref_subtraction);
+
+
+        PreferenceCategory fakeHeaderul = new PreferenceCategory(this);
+        fakeHeaderul.setTitle(Constant.MULTIPLICATION);
+        getPreferenceScreen().addPreference(fakeHeaderul);
+        addPreferencesFromResource(R.xml.pref_multiplication);
+
+
+        PreferenceCategory fakeHeadeDiv = new PreferenceCategory(this);
+        fakeHeadeDiv.setTitle(Constant.DIVISION);
+        getPreferenceScreen().addPreference(fakeHeadeDiv);
+        addPreferencesFromResource(R.xml.pref_division);
+
+
+
 
         // Add 'data and sync' preferences, and a corresponding header.
 //        fakeHeader = new PreferenceCategory(this);
@@ -71,11 +93,22 @@ public class SettingsActivity extends PreferenceActivity {
         // Bind the summaries of EditText/List/Dialog/Ringtone preferences to
         // their values. When their values change, their summaries are updated
         // to reflect the new value, per the Android Design guidelines.
-        bindPreferenceSummaryToValue(findPreference("example_text"));
-        bindPreferenceSummaryToValue(findPreference("numCount"));
+        bindPreferenceSummaryToValue(findPreference("user_name"));
+        bindPreferenceSummaryToValue(findPreference("numCountAddition"));
         bindPreferenceSummaryToValue(findPreference("number_of_digit_addition"));
-        bindPreferenceSummaryToValue(findPreference("notifications_new_message_ringtone"));
         bindPreferenceSummaryToValue(findPreference("addition_table_size"));
+
+        bindPreferenceSummaryToValue(findPreference("numCountSubtraction"));
+        bindPreferenceSummaryToValue(findPreference("number_of_digit_subtraction"));
+        bindPreferenceSummaryToValue(findPreference("subtraction_table_size"));
+
+        bindPreferenceSummaryToValue(findPreference("numCountMul"));
+        bindPreferenceSummaryToValue(findPreference("number_of_digit_num1"));
+        bindPreferenceSummaryToValue(findPreference("number_of_digit_mul2"));
+
+        bindPreferenceSummaryToValue(findPreference("numCountDiv"));
+        bindPreferenceSummaryToValue(findPreference("number_of_digit_div2"));
+        bindPreferenceSummaryToValue(findPreference("number_of_digit_div1"));
 //        bindPreferenceSummaryToValue(findPreference("sync_frequency"));
     }
 

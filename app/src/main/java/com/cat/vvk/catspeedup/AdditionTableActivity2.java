@@ -23,6 +23,7 @@ import android.widget.EditText;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.cat.vvk.catspeedup.db.DatabaseHelper;
 import com.cat.vvk.catspeedup.modal.Constant;
@@ -40,17 +41,14 @@ public class AdditionTableActivity2 extends AppCompatActivity implements View.On
     private int numCount = 10;
     private int numRaws = 0;
     private int numCol = 0;
-    private boolean flag = false;
+    private boolean flag = false, isTimerRunning = false;
     private int numDigit = 2;
     private DatabaseHelper dh;
     TimerTextView timer = null;
     EditText editText = null;
-    int answer = 0;
-    @Override
-    protected void onPostResume() {
-        super.onPostResume();
-    }
-
+    long givenAnswer = 0, actualAnswer = 0;
+    float answerDiv = 0;
+    String operationType="";
     @Override
     protected void onResume() {
         super.onResume();
@@ -58,17 +56,29 @@ public class AdditionTableActivity2 extends AppCompatActivity implements View.On
     }
 
     @Override
+    public void onBackPressed() {
+        if(isTimerRunning) {
+            Toast.makeText(this,"Press again to exit",Toast.LENGTH_SHORT).show();
+            isTimerRunning = false;
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_addition_table_activity2);
+        operationType = getIntent().getExtras().getString("operation_type",Constant.ADDITION);
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
+        mToolbar.setTitle(operationType);
         dh = DatabaseHelper.getInstance(getApplicationContext());
-        setup();
         Button btnStart = (Button) findViewById(R.id.btnStart);
         Button btnStop = (Button) findViewById(R.id.btnStop);
+        setup();
         timer = (com.cat.vvk.catspeedup.TimerTextView) findViewById(R.id.chron);
         timer.setText("0.000");
         btnStart.setOnClickListener(new View.OnClickListener() {
@@ -99,19 +109,16 @@ public class AdditionTableActivity2 extends AppCompatActivity implements View.On
     void setup(){
         if (!flag) {
 //            flag = true;
-            SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
-            numDigit = Integer.parseInt(sp.getString("number_of_digit_addition", "2"));
-            numCount = Integer.parseInt(sp.getString("numCount", "6"));
-            data = new int[numCount + 1];
+            setData();
+//            setData();
             numCount = numCount >= 15 ? 15 : numCount;
             numRaws = numCount >= 15 ? 15 : numCount;
             numCol = numCount % 15;
             int count = 0;
             final TableLayout tl = (TableLayout) findViewById(R.id.main_table);
             tl.removeAllViews();
-            Random rand = new Random();
             DisplayMetrics metrics = getResources().getDisplayMetrics();
-            Log.d("density","density :" + metrics.density + "desidpi : " + metrics.densityDpi );
+            Log.d("density","density :" + metrics.density + "density dpi : " + metrics.densityDpi );
             final float pixelHeight = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics());
             float pixelWidth = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics());
 
@@ -134,10 +141,7 @@ public class AdditionTableActivity2 extends AppCompatActivity implements View.On
                 tr_head.setLayoutParams(lp);
 
                 for (int j = 0; j <= (numCount - i - 1) / numRaws; j++) {
-                    int randomNum = rand.nextInt((int) (Math.pow(10, numDigit) - 1) + 1) + 1;
-                    data[count++] = randomNum;
-//                    data[i][6] += randomNum;
-                    data[numCount] += randomNum;
+                    int randomNum = data[count++];
                     TextView number = new TextView(this);
                     int margin = (int)(5*pixelHeight);
 //                    llp.pa(margin,margin,margin,margin);
@@ -167,7 +171,7 @@ public class AdditionTableActivity2 extends AppCompatActivity implements View.On
             et.setGravity(Gravity.CENTER);
             et.setInputType(InputType.TYPE_CLASS_NUMBER);
             et.setText("");
-            int maxLength = (""+data[numCount]).length();
+            int maxLength = (""+actualAnswer).length();
             Log.d("vvk","max length is " + maxLength + " : " + (int)(pixelHeight * maxLength * 14));
             et.setFilters(new InputFilter[]{new InputFilter.LengthFilter(maxLength)});
             TableRow.LayoutParams llpet = new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT);
@@ -181,24 +185,29 @@ public class AdditionTableActivity2 extends AppCompatActivity implements View.On
                 @Override
                 public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                     if (actionId == EditorInfo.IME_ACTION_DONE && !flag) {
+                        isTimerRunning = false;
                         timer.stop();
                         Record record = new Record();
                         record.setNumDigit(numDigit);
                         record.setCreatedDate(System.currentTimeMillis());
                         record.setTimeTaken(Float.parseFloat(timer.getText().toString()));
-                        record.setRecordType(Constant.ADDITION);
+                        record.setRecordType(operationType);
                         int isCorrect = 0;
                         if(editText != null) {
-                            answer = Integer.parseInt(editText.getText().toString());
+                            String answerText = editText.getText().toString();
+                            if(answerText != null && answerText.length() > 0)
+                            givenAnswer = Long.parseLong(answerText);
                         } else {
                             editText = (EditText)findViewById(100);
                             if(editText != null) {
-                                answer = Integer.parseInt(editText.getText().toString());
+                                String answerText = editText.getText().toString();
+                                if(answerText != null && answerText.length() > 0)
+                                givenAnswer = Integer.parseInt(answerText);
                             } else {
                                 isCorrect = 1;
                             }
                         }
-                        if( answer == data[numCount] || isCorrect == 1) {
+                        if( givenAnswer == actualAnswer || isCorrect == 1) {
                             Log.d("vvk","iscorrect " + isCorrect);
                             isCorrect = 0;
                             record.setIsCorrect(1);
@@ -214,7 +223,7 @@ public class AdditionTableActivity2 extends AppCompatActivity implements View.On
                             number1.setPadding(margin,margin,margin,margin);
                             number1.setLayoutParams(llp);
                             number1.setBackgroundResource(R.drawable.cell_shape);
-                            number1.setText("" + data[numCount]);
+                            number1.setText("" + actualAnswer);
                             number1.setTextColor(Color.BLACK);          // part2
                             number1.setGravity(Gravity.CENTER);
 
@@ -241,6 +250,91 @@ public class AdditionTableActivity2 extends AppCompatActivity implements View.On
         }
     }
 
+    void setData() {
+
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+        Random rand = new Random();
+        switch(operationType) {
+            case Constant.ADDITION :
+                numDigit = Integer.parseInt(sp.getString("number_of_digit_addition", "2"));
+                numCount = Integer.parseInt(sp.getString("numCountAddition", "6"));
+                data = new int[numCount + 1];
+                for(int i = 0;i<numCount;i++) {
+                    int randomNum = rand.nextInt((int) (Math.pow(10, numDigit) - 1)) + 1;
+                    data[i] = randomNum;
+                    actualAnswer += randomNum;
+//                    int randomNum = rand.nextInt((int) (Math.pow(10, numDigit) - 1) + 1) + 1;
+//                    data[count++] = randomNum;
+//                    data[numCount] += randomNum;
+                }
+                break;
+            case Constant.SUBTRACTION :
+                numDigit = Integer.parseInt(sp.getString("number_of_digit_subtraction", "2"));
+                numCount = Integer.parseInt(sp.getString("numCountSubtraction", "6"));
+                data = new int[numCount + 1];
+                for(int i = 0;i<numCount;i++) {
+                    int randomNum = rand.nextInt((int) (Math.pow(10, numDigit) - 1)) + 1;
+                    data[i] = randomNum;
+                    actualAnswer -= randomNum;
+//                    int randomNum = rand.nextInt((int) (Math.pow(10, numDigit) - 1) + 1) + 1;
+//                    data[count++] = randomNum;
+//                    data[numCount] += randomNum;
+                }
+                break;
+            case Constant.MULTIPLICATION :
+                int numDigit1 = Integer.parseInt(sp.getString("number_of_digit_mul1", "2"));
+                int numDigit2 = Integer.parseInt(sp.getString("number_of_digit_mul2", "2"));
+//                numCount = Integer.parseInt(sp.getString("numCountMul", "2"));
+                numDigit = numDigit1;
+                numCount = 2;
+                actualAnswer = 1;
+                givenAnswer = 1;
+                data = new int[numCount + 1];
+                for(int i = 0;i<numCount;i++) {
+                    if(i == 1) {
+                        numDigit = numDigit2;
+                    }
+                    int randomNum = rand.nextInt((int) (Math.pow(10, numDigit) - 1)) + 1;
+                    data[i] = randomNum;
+                    actualAnswer *= randomNum;
+
+//                    int randomNum = rand.nextInt((int) (Math.pow(10, numDigit) - 1) + 1) + 1;
+//                    data[count++] = randomNum;
+//                    data[numCount] += randomNum;
+                }
+                break;
+            case Constant.DIVISION :
+                int divDigit1 = Integer.parseInt(sp.getString("number_of_digit_div1", "2"));
+                int divDigit2 = Integer.parseInt(sp.getString("number_of_digit_div2", "1"));
+//                numCount = Integer.parseInt(sp.getString("numCountMul", "2"));
+                if(divDigit1 < divDigit2) {
+                    int tmp = divDigit2;
+                    divDigit2 = divDigit1;
+                    divDigit1 = tmp;
+                }
+                numDigit = divDigit1;
+                numCount = 2;
+                actualAnswer = 1;
+                givenAnswer = 1;
+                data = new int[numCount + 1];
+                for(int i = 0;i<numCount;i++) {
+                    if(i == 1) {
+                        numDigit = divDigit2;
+                    }
+                    int randomNum = rand.nextInt((int) (Math.pow(10, numDigit) - 1)) + 1;
+                    data[i] = randomNum;
+//                    actualAnswer *= randomNum;
+//                    int randomNum = rand.nextInt((int) (Math.pow(10, numDigit) - 1) + 1) + 1;
+//                    data[count++] = randomNum;
+//                    data[numCount] += randomNum;
+                }
+
+                actualAnswer = data[0] / data[1];
+                break;
+        }
+
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -258,6 +352,7 @@ public class AdditionTableActivity2 extends AppCompatActivity implements View.On
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             Intent i = new Intent(AdditionTableActivity2.this, GraphActivity.class);
+            i.putExtra("operationType",operationType);
             startActivity(i);
             return true;
         }
@@ -270,8 +365,10 @@ public class AdditionTableActivity2 extends AppCompatActivity implements View.On
 //        Log.d("vvk",""+v.getId());
         switch (v.getId()) {
             case 100:
-                if(hasFocus)
+                if(hasFocus) {
+                    isTimerRunning = true;
                     timer.start();
+                }
                 break;
         }
 

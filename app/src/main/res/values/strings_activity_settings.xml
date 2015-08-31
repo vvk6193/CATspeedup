@@ -14,9 +14,12 @@
     <string name="pref_title_display_name">Display name</string>
     <string name="pref_default_display_name">John Smith</string>
     <string name="count_number">Count of numbers you want</string>
-    <string name="count_default_number">John Smith</string>
+    <string name="count_default_number">3</string>
 
     <string name="pref_title_addition_digits">Number of digits in Addition</string>
+    <string name="pref_title_subtraction_digits">Number of digits in Subtraction</string>
+    <string name="pref_title_multiplication_digits">Number of digits in 1st number</string>
+    <string name="pref_title_division_digits">Number of digits in 2nd number</string>
     <string-array name="pref_addition_list_titles">
         <item>0</item>
         <item>1</item>
@@ -64,6 +67,9 @@
         <item>December</item>
     </string-array>
     <string name="pref_title_addition_table_size">Size of Addition table</string>
+    <string name="pref_title_subtraction_table_size">Size of Subtraction table</string>
+    <string name="pref_title_multiplication_table_size">Size of Multiplication table</string>
+    <string name="pref_title_division_table_size">Size of Division table</string>
     <string-array name="pref_addition_table_list_titles">
         <item>5</item>
         <item>6</item>
@@ -76,6 +82,16 @@
         <item>13</item>
         <item>14</item>
         <item>15</item>
+    </string-array>
+    <string-array name="pref_mul_div_digit">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+        <item>8</item>
     </string-array>
     <string-array name="pref_addition_table_list_values">
         <item>5</item>
